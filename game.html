@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Battle Game</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background: #87ceeb;
+            font-family: Arial, sans-serif;
+        }
+
+        canvas {
+            display: block;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        #hud {
+            position: fixed;
+            inset: 0;
+            z-index: 10;
+            pointer-events: none;
+            color: white;
+        }
+
+        #top {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            background: rgba(0,0,0,0.45);
+        }
+
+        #title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        #info {
+            text-align: right;
+            font-size: 14px;
+        }
+
+        #mode {
+            position: absolute;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.5);
+            padding: 8px 18px;
+            border-radius: 20px;
+        }
+
+        #crosshair {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 28px;
+            height: 28px;
+            transform: translate(-50%, -50%);
+        }
+
+        #crosshair div {
+            position: absolute;
+            background: white;
+            box-shadow: 0 0 3px black;
+        }
+
+        #crosshair .h1 {
+            width: 9px;
+            height: 2px;
+            left: 0;
+            top: 13px;
+        }
+
+        #crosshair .h2 {
+            width: 9px;
+            height: 2px;
+            right: 0;
+            top: 13px;
+        }
+
+        #crosshair .v1 {
+            width: 2px;
+            height: 9px;
+            left: 13px;
+            top: 0;
+        }
+
+        #crosshair .v2 {
+            width: 2px;
+            height: 9px;
+            left: 13px;
+            bottom: 0;
+        }
+
+        #stats {
+            position: absolute;
+            left: 15px;
+            bottom: 15px;
+            background: rgba(0,0,0,0.65);
+            padding: 12px;
+            border-radius: 10px;
+            line-height: 1.7;
+        }
+
+        #help {
+            position: absolute;
+            right: 15px;
+            bottom: 15px;
+            background: rgba(0,0,0,0.65);
+            padding: 12px;
+            border-radius: 10px;
+            text-align: right;
+            line-height: 1.6;
+        }
+
+        #message {
+            position: absolute;
+            left: 50%;
+            top: 25%;
+            transform: translateX(-50%);
+            font-size: 30px;
+            font-weight: bold;
+            text-shadow: 0 2px 5px black;
+        }
+
+        #error {
+            display: none;
+            position: fixed;
+            z-index: 100;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            padding: 20px;
+            background: #180000;
+            color: #ff5555;
+            border: 2px solid #ff3333;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="error"></div>
+
+<div id="hud">
+
+    <div id="top">
+        <div id="title">MY BATTLE GAME</div>
+
+        <div id="info">
+            Player: <span id="username">Player</span><br>
+            UID: <span id="uid">11111111</span>
+        </div>
+    </div>
+
+    <div id="mode">BATTLE ROYALE</div>
+
+    <div id="crosshair">
+        <div class="h1"></div>
+        <div class="h2"></div>
+        <div class="v1"></div>
+        <div class="v2"></div>
+    </div>
+
+    <div id="stats">
+        ❤️ Health: <span id="health">100</span><br>
+        🔫 Ammo: <span id="ammo">30</span>/30<br>
+        💀 Kills: <span id="kills">0</span><br>
+        🤖 Bots: <span id="bots">10</span>
+    </div>
+
+    <div id="help">
+        W A S D = Move<br>
+        Mouse = Aim<br>
+        Left Click = Shoot<br>
+        R = Reload
+    </div>
+
+    <div id="message"></div>
+
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+
+<!-- LOCAL THREE.JS -->
+<script src="/node_modules/three/build/three.min.js"></script>
+
+<script>
+
+window.addEventListener("error", function(event) {
+
+    const box = document.getElementById("error");
+
+    box.style.display = "block";
+
+    box.innerHTML =
+        "<b>GAME ERROR</b><br><br>" +
+        event.message;
+
+});
+
+</script>
+
+<script src="game.js"></script>
+
+<script>
+
+const username =
+    localStorage.getItem("username") || "Player";
+
+const uid =
+    localStorage.getItem("uid") || "11111111";
+
+document.getElementById("username").textContent =
+    username;
+
+document.getElementById("uid").textContent =
+    uid;
+
+const socket = io();
+
+socket.on("connect", function() {
+
+    socket.emit("joinGame", {
+        uid: uid,
+        username: username
+    });
+
+    console.log("Connected to game server.");
+
+});
+
+</script>
+
+</body>
+</html>

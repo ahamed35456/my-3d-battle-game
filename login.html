@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Battle Game - Login</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<div class="login-box">
+
+    <h1>MY BATTLE GAME</h1>
+    <p class="subtitle">Login or create your account</p>
+
+    <input id="username" type="text" placeholder="Username">
+
+    <input id="password" type="password" placeholder="Password">
+
+    <button onclick="login()">LOGIN</button>
+
+    <button class="register" onclick="register()">
+        CREATE ACCOUNT
+    </button>
+
+    <p id="message"></p>
+
+</div>
+
+<script>
+
+async function register() {
+
+    const username =
+        document.getElementById("username").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    if (!username || !password) {
+        document.getElementById("message").textContent =
+            "Enter username and password.";
+        return;
+    }
+
+    const response = await fetch("/register", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            username,
+            password
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+
+        document.getElementById("message").textContent =
+            "Account created! Your UID is " + data.uid;
+
+    } else {
+
+        document.getElementById("message").textContent =
+            data.message;
+    }
+}
+
+
+async function login() {
+
+    const username =
+        document.getElementById("username").value.trim();
+
+    const password =
+        document.getElementById("password").value;
+
+    const response = await fetch("/login", {
+
+        method: "POST",
+
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+            username,
+            password
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+
+        localStorage.setItem(
+            "uid",
+            data.uid
+        );
+
+        localStorage.setItem(
+            "username",
+            data.username
+        );
+
+        window.location.href = "game.html";
+
+    } else {
+
+        document.getElementById("message").textContent =
+            data.message;
+    }
+}
+
+</script>
+
+</body>
+</html>
